@@ -3,7 +3,7 @@
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 [![Go Report](https://goreportcard.com/badge/github.com/guildenstern70/golearn)](https://goreportcard.com/report/github.com/guildenstern70/golearn)
 
-### Setup
+## Setup
 
 You should have a single workspace repository for all of your GO
 code, and a GOPATH pointing to that.
@@ -22,7 +22,7 @@ so that you find the LICENSE file here:
 
     $GOPATH/src/github.com/guildenstern70/smartgorest/LICENSE
 
-### Build
+## Build
 
 First, update the dependencies by running
 
@@ -32,7 +32,7 @@ You build the executable file by running
 
     go install .
 
-### Run
+## Run
 
     go run .
 
@@ -41,12 +41,12 @@ To run the executable file:
     $GOPATH/bin/smartgorest.exe (Windows)
     $GOPATH/bin/smartgorest (Mac + Linux)
 
-### Test
+## Test
 Run the test suite of this project by running
 
     go test github.com/guildenstern70/smartgorest/internal
 
-### Ecosystem
+## Ecosystem
 
 •	Framework (Echo): Highly recommended for REST. It is more "feature-complete" than Gin and feels more 
     idiomatic for building professional APIs.
@@ -60,10 +60,18 @@ Why it fits:
 •	Ent's Schema: Defining models in Ent feels very similar to defining Pydantic models or Java Entities.
 
 
+### Add modules to the project
+
+    go get -u [fully qualified module name]
+
 ### Ent.
 
-To add a new entity
+Add a new entity
 
     go run -mod=mod entgo.io/ent/cmd/ent new User
+
+Clear the database and regenerate the code
+
+    go run -mod=mod entgo.io/ent/cmd/ent generate ./ent/schema --feature sql/lock
 
 
