@@ -25,4 +25,8 @@ func init() {
 	personDescAge := personFields[2].Descriptor()
 	// person.DefaultAge holds the default value on creation for the age field.
 	person.DefaultAge = personDescAge.Default.(int)
+	// personDescEmail is the schema descriptor for email field.
+	personDescEmail := personFields[3].Descriptor()
+	// person.DefaultEmail holds the default value on creation for the email field.
+	person.DefaultEmail = personDescEmail.Default.(string)
 }

@@ -67,6 +67,11 @@ func Age(v int) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldAge, v))
 }
 
+// Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
+func Email(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldEmail, v))
+}
+
 // FirstNameEQ applies the EQ predicate on the "first_name" field.
 func FirstNameEQ(v string) predicate.Person {
 	return predicate.Person(sql.FieldEQ(FieldFirstName, v))
@@ -235,6 +240,71 @@ func AgeLT(v int) predicate.Person {
 // AgeLTE applies the LTE predicate on the "age" field.
 func AgeLTE(v int) predicate.Person {
 	return predicate.Person(sql.FieldLTE(FieldAge, v))
+}
+
+// EmailEQ applies the EQ predicate on the "email" field.
+func EmailEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldEQ(FieldEmail, v))
+}
+
+// EmailNEQ applies the NEQ predicate on the "email" field.
+func EmailNEQ(v string) predicate.Person {
+	return predicate.Person(sql.FieldNEQ(FieldEmail, v))
+}
+
+// EmailIn applies the In predicate on the "email" field.
+func EmailIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldIn(FieldEmail, vs...))
+}
+
+// EmailNotIn applies the NotIn predicate on the "email" field.
+func EmailNotIn(vs ...string) predicate.Person {
+	return predicate.Person(sql.FieldNotIn(FieldEmail, vs...))
+}
+
+// EmailGT applies the GT predicate on the "email" field.
+func EmailGT(v string) predicate.Person {
+	return predicate.Person(sql.FieldGT(FieldEmail, v))
+}
+
+// EmailGTE applies the GTE predicate on the "email" field.
+func EmailGTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldGTE(FieldEmail, v))
+}
+
+// EmailLT applies the LT predicate on the "email" field.
+func EmailLT(v string) predicate.Person {
+	return predicate.Person(sql.FieldLT(FieldEmail, v))
+}
+
+// EmailLTE applies the LTE predicate on the "email" field.
+func EmailLTE(v string) predicate.Person {
+	return predicate.Person(sql.FieldLTE(FieldEmail, v))
+}
+
+// EmailContains applies the Contains predicate on the "email" field.
+func EmailContains(v string) predicate.Person {
+	return predicate.Person(sql.FieldContains(FieldEmail, v))
+}
+
+// EmailHasPrefix applies the HasPrefix predicate on the "email" field.
+func EmailHasPrefix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasPrefix(FieldEmail, v))
+}
+
+// EmailHasSuffix applies the HasSuffix predicate on the "email" field.
+func EmailHasSuffix(v string) predicate.Person {
+	return predicate.Person(sql.FieldHasSuffix(FieldEmail, v))
+}
+
+// EmailEqualFold applies the EqualFold predicate on the "email" field.
+func EmailEqualFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldEqualFold(FieldEmail, v))
+}
+
+// EmailContainsFold applies the ContainsFold predicate on the "email" field.
+func EmailContainsFold(v string) predicate.Person {
+	return predicate.Person(sql.FieldContainsFold(FieldEmail, v))
 }
 
 // And groups predicates with the AND operator between them.

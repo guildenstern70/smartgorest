@@ -36,6 +36,7 @@ type PersonMutation struct {
 	last_name     *string
 	age           *int
 	addage        *int
+	email         *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Person, error)
@@ -268,6 +269,42 @@ func (m *PersonMutation) ResetAge() {
 	m.addage = nil
 }
 
+// SetEmail sets the "email" field.
+func (m *PersonMutation) SetEmail(s string) {
+	m.email = &s
+}
+
+// Email returns the value of the "email" field in the mutation.
+func (m *PersonMutation) Email() (r string, exists bool) {
+	v := m.email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmail returns the old "email" field's value of the Person entity.
+// If the Person object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PersonMutation) OldEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmail: %w", err)
+	}
+	return oldValue.Email, nil
+}
+
+// ResetEmail resets all changes to the "email" field.
+func (m *PersonMutation) ResetEmail() {
+	m.email = nil
+}
+
 // Where appends a list predicates to the PersonMutation builder.
 func (m *PersonMutation) Where(ps ...predicate.Person) {
 	m.predicates = append(m.predicates, ps...)
@@ -302,7 +339,7 @@ func (m *PersonMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PersonMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.first_name != nil {
 		fields = append(fields, person.FieldFirstName)
 	}
@@ -311,6 +348,9 @@ func (m *PersonMutation) Fields() []string {
 	}
 	if m.age != nil {
 		fields = append(fields, person.FieldAge)
+	}
+	if m.email != nil {
+		fields = append(fields, person.FieldEmail)
 	}
 	return fields
 }
@@ -326,6 +366,8 @@ func (m *PersonMutation) Field(name string) (ent.Value, bool) {
 		return m.LastName()
 	case person.FieldAge:
 		return m.Age()
+	case person.FieldEmail:
+		return m.Email()
 	}
 	return nil, false
 }
@@ -341,6 +383,8 @@ func (m *PersonMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldLastName(ctx)
 	case person.FieldAge:
 		return m.OldAge(ctx)
+	case person.FieldEmail:
+		return m.OldEmail(ctx)
 	}
 	return nil, fmt.Errorf("unknown Person field %s", name)
 }
@@ -370,6 +414,13 @@ func (m *PersonMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetAge(v)
+		return nil
+	case person.FieldEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmail(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)
@@ -443,6 +494,9 @@ func (m *PersonMutation) ResetField(name string) error {
 		return nil
 	case person.FieldAge:
 		m.ResetAge()
+		return nil
+	case person.FieldEmail:
+		m.ResetEmail()
 		return nil
 	}
 	return fmt.Errorf("unknown Person field %s", name)

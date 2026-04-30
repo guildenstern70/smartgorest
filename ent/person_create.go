@@ -61,6 +61,20 @@ func (_c *PersonCreate) SetNillableAge(v *int) *PersonCreate {
 	return _c
 }
 
+// SetEmail sets the "email" field.
+func (_c *PersonCreate) SetEmail(v string) *PersonCreate {
+	_c.mutation.SetEmail(v)
+	return _c
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_c *PersonCreate) SetNillableEmail(v *string) *PersonCreate {
+	if v != nil {
+		_c.SetEmail(*v)
+	}
+	return _c
+}
+
 // Mutation returns the PersonMutation object of the builder.
 func (_c *PersonCreate) Mutation() *PersonMutation {
 	return _c.mutation
@@ -108,6 +122,10 @@ func (_c *PersonCreate) defaults() {
 		v := person.DefaultAge
 		_c.mutation.SetAge(v)
 	}
+	if _, ok := _c.mutation.Email(); !ok {
+		v := person.DefaultEmail
+		_c.mutation.SetEmail(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -120,6 +138,9 @@ func (_c *PersonCreate) check() error {
 	}
 	if _, ok := _c.mutation.Age(); !ok {
 		return &ValidationError{Name: "age", err: errors.New(`ent: missing required field "Person.age"`)}
+	}
+	if _, ok := _c.mutation.Email(); !ok {
+		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "Person.email"`)}
 	}
 	return nil
 }
@@ -158,6 +179,10 @@ func (_c *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Age(); ok {
 		_spec.SetField(person.FieldAge, field.TypeInt, value)
 		_node.Age = value
+	}
+	if value, ok := _c.mutation.Email(); ok {
+		_spec.SetField(person.FieldEmail, field.TypeString, value)
+		_node.Email = value
 	}
 	return _node, _spec
 }

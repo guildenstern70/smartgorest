@@ -74,4 +74,6 @@ Clear the database and regenerate the code
 
     go run -mod=mod entgo.io/ent/cmd/ent generate ./ent/schema --feature sql/lock
 
+Notice that the changes are applied to the database when you run the app, because
+it has a mechanism to auto-create the schema on startup.
 

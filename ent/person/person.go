@@ -17,6 +17,8 @@ const (
 	FieldLastName = "last_name"
 	// FieldAge holds the string denoting the age field in the database.
 	FieldAge = "age"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// Table holds the table name of the person in the database.
 	Table = "persons"
 )
@@ -27,6 +29,7 @@ var Columns = []string{
 	FieldFirstName,
 	FieldLastName,
 	FieldAge,
+	FieldEmail,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -46,6 +49,8 @@ var (
 	DefaultLastName string
 	// DefaultAge holds the default value on creation for the "age" field.
 	DefaultAge int
+	// DefaultEmail holds the default value on creation for the "email" field.
+	DefaultEmail string
 )
 
 // OrderOption defines the ordering options for the Person queries.
@@ -69,4 +74,9 @@ func ByLastName(opts ...sql.OrderTermOption) OrderOption {
 // ByAge orders the results by the age field.
 func ByAge(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAge, opts...).ToFunc()
+}
+
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }

@@ -21,7 +21,9 @@ type Person struct {
 	// LastName holds the value of the "last_name" field.
 	LastName string `json:"last_name,omitempty"`
 	// Age holds the value of the "age" field.
-	Age          int `json:"age,omitempty"`
+	Age int `json:"age,omitempty"`
+	// Email holds the value of the "email" field.
+	Email        string `json:"email,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -32,7 +34,7 @@ func (*Person) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case person.FieldID, person.FieldAge:
 			values[i] = new(sql.NullInt64)
-		case person.FieldFirstName, person.FieldLastName:
+		case person.FieldFirstName, person.FieldLastName, person.FieldEmail:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -72,6 +74,12 @@ func (_m *Person) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field age", values[i])
 			} else if value.Valid {
 				_m.Age = int(value.Int64)
+			}
+		case person.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				_m.Email = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -117,6 +125,9 @@ func (_m *Person) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("age=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Age))
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(_m.Email)
 	builder.WriteByte(')')
 	return builder.String()
 }

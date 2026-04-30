@@ -19,6 +19,8 @@ func (Person) Fields() []ent.Field {
 			Default("?"),
 		field.Int("age").
 			Default(0),
+		field.String("email").
+			Default("?"),
 	}
 }
 

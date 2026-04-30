@@ -14,6 +14,7 @@ var (
 		{Name: "first_name", Type: field.TypeString, Default: "?"},
 		{Name: "last_name", Type: field.TypeString, Default: "?"},
 		{Name: "age", Type: field.TypeInt, Default: 0},
+		{Name: "email", Type: field.TypeString, Default: "?"},
 	}
 	// PersonsTable holds the schema information for the "persons" table.
 	PersonsTable = &schema.Table{

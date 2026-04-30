@@ -76,6 +76,20 @@ func (_u *PersonUpdate) AddAge(v int) *PersonUpdate {
 	return _u
 }
 
+// SetEmail sets the "email" field.
+func (_u *PersonUpdate) SetEmail(v string) *PersonUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *PersonUpdate) SetNillableEmail(v *string) *PersonUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
+	return _u
+}
+
 // Mutation returns the PersonMutation object of the builder.
 func (_u *PersonUpdate) Mutation() *PersonMutation {
 	return _u.mutation
@@ -128,6 +142,9 @@ func (_u *PersonUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedAge(); ok {
 		_spec.AddField(person.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(person.FieldEmail, field.TypeString, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -195,6 +212,20 @@ func (_u *PersonUpdateOne) SetNillableAge(v *int) *PersonUpdateOne {
 // AddAge adds value to the "age" field.
 func (_u *PersonUpdateOne) AddAge(v int) *PersonUpdateOne {
 	_u.mutation.AddAge(v)
+	return _u
+}
+
+// SetEmail sets the "email" field.
+func (_u *PersonUpdateOne) SetEmail(v string) *PersonUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
+}
+
+// SetNillableEmail sets the "email" field if the given value is not nil.
+func (_u *PersonUpdateOne) SetNillableEmail(v *string) *PersonUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
+	}
 	return _u
 }
 
@@ -280,6 +311,9 @@ func (_u *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err erro
 	}
 	if value, ok := _u.mutation.AddedAge(); ok {
 		_spec.AddField(person.FieldAge, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.Email(); ok {
+		_spec.SetField(person.FieldEmail, field.TypeString, value)
 	}
 	_node = &Person{config: _u.config}
 	_spec.Assign = _node.assignValues
