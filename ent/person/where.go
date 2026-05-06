@@ -4,6 +4,7 @@ package person
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/guildenstern70/smartgorest/ent/predicate"
 )
 
@@ -305,6 +306,29 @@ func EmailEqualFold(v string) predicate.Person {
 // EmailContainsFold applies the ContainsFold predicate on the "email" field.
 func EmailContainsFold(v string) predicate.Person {
 	return predicate.Person(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// HasPhones applies the HasEdge predicate on the "phones" edge.
+func HasPhones() predicate.Person {
+	return predicate.Person(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PhonesTable, PhonesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPhonesWith applies the HasEdge predicate on the "phones" edge with a given conditions (other predicates).
+func HasPhonesWith(preds ...predicate.Phone) predicate.Person {
+	return predicate.Person(func(s *sql.Selector) {
+		step := newPhonesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

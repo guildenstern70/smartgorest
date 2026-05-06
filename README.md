@@ -68,9 +68,9 @@ Why it fits:
 
 Add a new entity
 
-    go run -mod=mod entgo.io/ent/cmd/ent new User
+    go run -mod=mod entgo.io/ent/cmd/ent new Person
 
-Clear the database and regenerate the code
+Regenerate the code
 
     go run -mod=mod entgo.io/ent/cmd/ent generate ./ent/schema --feature sql/lock
 

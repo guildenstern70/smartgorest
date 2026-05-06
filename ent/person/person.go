@@ -4,6 +4,7 @@ package person
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -19,8 +20,17 @@ const (
 	FieldAge = "age"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// EdgePhones holds the string denoting the phones edge name in mutations.
+	EdgePhones = "phones"
 	// Table holds the table name of the person in the database.
 	Table = "persons"
+	// PhonesTable is the table that holds the phones relation/edge.
+	PhonesTable = "phones"
+	// PhonesInverseTable is the table name for the Phone entity.
+	// It exists in this package in order to avoid circular dependency with the "phone" package.
+	PhonesInverseTable = "phones"
+	// PhonesColumn is the table column denoting the phones relation/edge.
+	PhonesColumn = "person_phones"
 )
 
 // Columns holds all SQL columns for person fields.
@@ -79,4 +89,25 @@ func ByAge(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByPhonesCount orders the results by phones count.
+func ByPhonesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPhonesStep(), opts...)
+	}
+}
+
+// ByPhones orders the results by phones terms.
+func ByPhones(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPhonesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newPhonesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PhonesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PhonesTable, PhonesColumn),
+	)
 }

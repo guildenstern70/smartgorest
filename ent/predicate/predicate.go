@@ -8,3 +8,6 @@ import (
 
 // Person is the predicate function for person builders.
 type Person func(*sql.Selector)
+
+// Phone is the predicate function for phone builders.
+type Phone func(*sql.Selector)

@@ -21,6 +21,18 @@ func (f PersonFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, erro
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PersonMutation", m)
 }
 
+// The PhoneFunc type is an adapter to allow the use of ordinary
+// function as Phone mutator.
+type PhoneFunc func(context.Context, *ent.PhoneMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PhoneFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PhoneMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PhoneMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

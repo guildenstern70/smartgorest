@@ -22,11 +22,35 @@ var (
 		Columns:    PersonsColumns,
 		PrimaryKey: []*schema.Column{PersonsColumns[0]},
 	}
+	// PhonesColumns holds the columns for the "phones" table.
+	PhonesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "prefix", Type: field.TypeString, Default: "+39"},
+		{Name: "number", Type: field.TypeString, Default: ""},
+		{Name: "kind", Type: field.TypeEnum, Enums: []string{"cellular", "home", "work"}},
+		{Name: "person_phones", Type: field.TypeInt, Nullable: true},
+	}
+	// PhonesTable holds the schema information for the "phones" table.
+	PhonesTable = &schema.Table{
+		Name:       "phones",
+		Columns:    PhonesColumns,
+		PrimaryKey: []*schema.Column{PhonesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "phones_persons_phones",
+				Columns:    []*schema.Column{PhonesColumns[4]},
+				RefColumns: []*schema.Column{PersonsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		PersonsTable,
+		PhonesTable,
 	}
 )
 
 func init() {
+	PhonesTable.ForeignKeys[0].RefTable = PersonsTable
 }

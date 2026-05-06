@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/guildenstern70/smartgorest/ent/person"
+	"github.com/guildenstern70/smartgorest/ent/phone"
 )
 
 // PersonCreate is the builder for creating a Person entity.
@@ -73,6 +74,21 @@ func (_c *PersonCreate) SetNillableEmail(v *string) *PersonCreate {
 		_c.SetEmail(*v)
 	}
 	return _c
+}
+
+// AddPhoneIDs adds the "phones" edge to the Phone entity by IDs.
+func (_c *PersonCreate) AddPhoneIDs(ids ...int) *PersonCreate {
+	_c.mutation.AddPhoneIDs(ids...)
+	return _c
+}
+
+// AddPhones adds the "phones" edges to the Phone entity.
+func (_c *PersonCreate) AddPhones(v ...*Phone) *PersonCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddPhoneIDs(ids...)
 }
 
 // Mutation returns the PersonMutation object of the builder.
@@ -183,6 +199,22 @@ func (_c *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(person.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if nodes := _c.mutation.PhonesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

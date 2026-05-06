@@ -37,6 +37,7 @@ func main() {
 		}
 	}(client)
 
+	// Populate database with sample data
 	dbInitializer := db.NewInitializer(context.Background(), client)
 	if err := dbInitializer.Run(); err != nil {
 		log.Fatalf("failed initializing database: %v", err)

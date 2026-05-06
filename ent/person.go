@@ -23,8 +23,29 @@ type Person struct {
 	// Age holds the value of the "age" field.
 	Age int `json:"age,omitempty"`
 	// Email holds the value of the "email" field.
-	Email        string `json:"email,omitempty"`
+	Email string `json:"email,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the PersonQuery when eager-loading is set.
+	Edges        PersonEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// PersonEdges holds the relations/edges for other nodes in the graph.
+type PersonEdges struct {
+	// Phones holds the value of the phones edge.
+	Phones []*Phone `json:"phones,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// PhonesOrErr returns the Phones value or an error if the edge
+// was not loaded in eager-loading.
+func (e PersonEdges) PhonesOrErr() ([]*Phone, error) {
+	if e.loadedTypes[0] {
+		return e.Phones, nil
+	}
+	return nil, &NotLoadedError{edge: "phones"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -92,6 +113,11 @@ func (_m *Person) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Person) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryPhones queries the "phones" edge of the Person entity.
+func (_m *Person) QueryPhones() *PhoneQuery {
+	return NewPersonClient(_m.config).QueryPhones(_m)
 }
 
 // Update returns a builder for updating this Person.

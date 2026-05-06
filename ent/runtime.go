@@ -4,6 +4,7 @@ package ent
 
 import (
 	"github.com/guildenstern70/smartgorest/ent/person"
+	"github.com/guildenstern70/smartgorest/ent/phone"
 	"github.com/guildenstern70/smartgorest/ent/schema"
 )
 
@@ -29,4 +30,14 @@ func init() {
 	personDescEmail := personFields[3].Descriptor()
 	// person.DefaultEmail holds the default value on creation for the email field.
 	person.DefaultEmail = personDescEmail.Default.(string)
+	phoneFields := schema.Phone{}.Fields()
+	_ = phoneFields
+	// phoneDescPrefix is the schema descriptor for prefix field.
+	phoneDescPrefix := phoneFields[0].Descriptor()
+	// phone.DefaultPrefix holds the default value on creation for the prefix field.
+	phone.DefaultPrefix = phoneDescPrefix.Default.(string)
+	// phoneDescNumber is the schema descriptor for number field.
+	phoneDescNumber := phoneFields[1].Descriptor()
+	// phone.DefaultNumber holds the default value on creation for the number field.
+	phone.DefaultNumber = phoneDescNumber.Default.(string)
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/guildenstern70/smartgorest/ent"
+	"github.com/guildenstern70/smartgorest/ent/phone"
 )
 
 type Initializer struct {
@@ -39,20 +40,49 @@ func (dbinit *Initializer) Run() error {
 	}
 
 	log.Println("Initializing the database...")
-	if err := dbinit.createPerson("John", "Doe", "john.doe@example.com", 30); err != nil {
-		return err
+	phones := dbinit.addPhones()
+	dbinit.addPersons(phones)
+	log.Println("Database initialized.")
+
+	return nil
+}
+
+func (dbinit *Initializer) addPhones() []*ent.Phone {
+	log.Println("Adding phones...")
+
+	prefixes := []string{"+1", "+39", "+44", "+49", "+33", "+34"}
+	kinds := []phone.Kind{phone.KindCellular, phone.KindHome, phone.KindWork}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	phones := make([]*ent.Phone, 0, 20)
+	for i := 0; i < 20; i++ {
+		prefix := prefixes[r.Intn(len(prefixes))]
+		number := fmt.Sprintf("%03d%07d", r.Intn(1000), r.Intn(10000000))
+		kind := kinds[r.Intn(len(kinds))]
+
+		p, err := dbinit.createPhone(prefix, number, kind)
+		if err != nil {
+			log.Printf("failed to create phone: %v", err)
+			return phones
+		}
+		phones = append(phones, p)
 	}
-	if err := dbinit.createPerson("Jane", "Smith", "jane.smith@example.com", 25); err != nil {
-		return err
-	}
+
+	log.Println("... done.")
+	return phones
+}
+
+func (dbinit *Initializer) addPersons(phones []*ent.Phone) {
+
+	log.Println("Adding persons...")
 
 	firstNames := []string{"Liam", "Olivia", "Noah", "Emma", "Lucas", "Mia", "Ethan", "Sofia", "Ava", "Elijah", "Isabella", "Mason"}
 	lastNames := []string{"Brown", "Wilson", "Taylor", "Anderson", "Thomas", "Moore", "Jackson", "Martin", "Lee", "Walker", "Harris", "Clark"}
 	domains := []string{"example.com", "mail.com", "test.org", "acme.dev"}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	// Generate 12 additional records with random combinations.
-	for i := 0; i < 12; i++ {
+	// Generate 15 Persons with random combinations.
+	for i := 0; i < 15; i++ {
 		firstName := firstNames[r.Intn(len(firstNames))]
 		lastName := lastNames[r.Intn(len(lastNames))]
 		age := 18 + r.Intn(48)
@@ -64,26 +94,51 @@ func (dbinit *Initializer) Run() error {
 			domains[r.Intn(len(domains))],
 		)
 
-		if err := dbinit.createPerson(firstName, lastName, email, age); err != nil {
-			return err
+		// Assign 1 or 2 random phones to this person, consuming them from the pool.
+		count := 1 + r.Intn(2)
+		assigned := make([]*ent.Phone, 0, count)
+		for j := 0; j < count && len(phones) > 0; j++ {
+			idx := r.Intn(len(phones))
+			assigned = append(assigned, phones[idx])
+			phones = append(phones[:idx], phones[idx+1:]...)
+		}
+
+		if err := dbinit.createPerson(firstName, lastName, email, age, assigned); err != nil {
+			log.Printf("failed to create person: %v", err)
+			return
 		}
 	}
-	log.Println("Done.")
+	log.Println("... done.")
 
-	return nil
+}
+
+func (dbinit *Initializer) createPhone(prefix string, number string, kind phone.Kind) (*ent.Phone, error) {
+	p, err := dbinit.client.Phone.
+		Create().
+		SetPrefix(prefix).
+		SetNumber(number).
+		SetKind(kind).
+		Save(dbinit.ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed creating phone: %w", err)
+	}
+
+	return p, nil
 }
 
 func (dbinit *Initializer) createPerson(
 	firstName string,
 	lastName string,
 	email string,
-	age int) error {
+	age int,
+	phones []*ent.Phone) error {
 	_, err := dbinit.client.Person.
 		Create().
 		SetAge(age).
 		SetFirstName(firstName).
 		SetLastName(lastName).
 		SetEmail(email).
+		AddPhones(phones...).
 		Save(dbinit.ctx)
 	if err != nil {
 		return fmt.Errorf("failed creating user: %w", err)

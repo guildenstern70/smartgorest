@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Person is the client for interacting with the Person builders.
 	Person *PersonClient
+	// Phone is the client for interacting with the Phone builders.
+	Phone *PhoneClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +148,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Person = NewPersonClient(tx.config)
+	tx.Phone = NewPhoneClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

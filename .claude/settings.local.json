@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go generate:*)",
+      "Bash(ls /Users/alessio/Documents/Codice/Go/src/github.com/guildenstern70/smartgorest/ent/phone*.go)",
+      "Bash(go build:*)"
+    ]
+  }
+}

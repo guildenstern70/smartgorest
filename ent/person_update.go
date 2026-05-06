@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/guildenstern70/smartgorest/ent/person"
+	"github.com/guildenstern70/smartgorest/ent/phone"
 	"github.com/guildenstern70/smartgorest/ent/predicate"
 )
 
@@ -90,9 +91,45 @@ func (_u *PersonUpdate) SetNillableEmail(v *string) *PersonUpdate {
 	return _u
 }
 
+// AddPhoneIDs adds the "phones" edge to the Phone entity by IDs.
+func (_u *PersonUpdate) AddPhoneIDs(ids ...int) *PersonUpdate {
+	_u.mutation.AddPhoneIDs(ids...)
+	return _u
+}
+
+// AddPhones adds the "phones" edges to the Phone entity.
+func (_u *PersonUpdate) AddPhones(v ...*Phone) *PersonUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPhoneIDs(ids...)
+}
+
 // Mutation returns the PersonMutation object of the builder.
 func (_u *PersonUpdate) Mutation() *PersonMutation {
 	return _u.mutation
+}
+
+// ClearPhones clears all "phones" edges to the Phone entity.
+func (_u *PersonUpdate) ClearPhones() *PersonUpdate {
+	_u.mutation.ClearPhones()
+	return _u
+}
+
+// RemovePhoneIDs removes the "phones" edge to Phone entities by IDs.
+func (_u *PersonUpdate) RemovePhoneIDs(ids ...int) *PersonUpdate {
+	_u.mutation.RemovePhoneIDs(ids...)
+	return _u
+}
+
+// RemovePhones removes "phones" edges to Phone entities.
+func (_u *PersonUpdate) RemovePhones(v ...*Phone) *PersonUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePhoneIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -145,6 +182,51 @@ func (_u *PersonUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(person.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.PhonesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPhonesIDs(); len(nodes) > 0 && !_u.mutation.PhonesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PhonesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -229,9 +311,45 @@ func (_u *PersonUpdateOne) SetNillableEmail(v *string) *PersonUpdateOne {
 	return _u
 }
 
+// AddPhoneIDs adds the "phones" edge to the Phone entity by IDs.
+func (_u *PersonUpdateOne) AddPhoneIDs(ids ...int) *PersonUpdateOne {
+	_u.mutation.AddPhoneIDs(ids...)
+	return _u
+}
+
+// AddPhones adds the "phones" edges to the Phone entity.
+func (_u *PersonUpdateOne) AddPhones(v ...*Phone) *PersonUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddPhoneIDs(ids...)
+}
+
 // Mutation returns the PersonMutation object of the builder.
 func (_u *PersonUpdateOne) Mutation() *PersonMutation {
 	return _u.mutation
+}
+
+// ClearPhones clears all "phones" edges to the Phone entity.
+func (_u *PersonUpdateOne) ClearPhones() *PersonUpdateOne {
+	_u.mutation.ClearPhones()
+	return _u
+}
+
+// RemovePhoneIDs removes the "phones" edge to Phone entities by IDs.
+func (_u *PersonUpdateOne) RemovePhoneIDs(ids ...int) *PersonUpdateOne {
+	_u.mutation.RemovePhoneIDs(ids...)
+	return _u
+}
+
+// RemovePhones removes "phones" edges to Phone entities.
+func (_u *PersonUpdateOne) RemovePhones(v ...*Phone) *PersonUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemovePhoneIDs(ids...)
 }
 
 // Where appends a list predicates to the PersonUpdate builder.
@@ -314,6 +432,51 @@ func (_u *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err erro
 	}
 	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(person.FieldEmail, field.TypeString, value)
+	}
+	if _u.mutation.PhonesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedPhonesIDs(); len(nodes) > 0 && !_u.mutation.PhonesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.PhonesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   person.PhonesTable,
+			Columns: []string{person.PhonesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Person{config: _u.config}
 	_spec.Assign = _node.assignValues

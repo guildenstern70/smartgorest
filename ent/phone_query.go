@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -12,92 +11,69 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/guildenstern70/smartgorest/ent/person"
 	"github.com/guildenstern70/smartgorest/ent/phone"
 	"github.com/guildenstern70/smartgorest/ent/predicate"
 )
 
-// PersonQuery is the builder for querying Person entities.
-type PersonQuery struct {
+// PhoneQuery is the builder for querying Phone entities.
+type PhoneQuery struct {
 	config
 	ctx        *QueryContext
-	order      []person.OrderOption
+	order      []phone.OrderOption
 	inters     []Interceptor
-	predicates []predicate.Person
-	withPhones *PhoneQuery
+	predicates []predicate.Phone
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the PersonQuery builder.
-func (_q *PersonQuery) Where(ps ...predicate.Person) *PersonQuery {
+// Where adds a new predicate for the PhoneQuery builder.
+func (_q *PhoneQuery) Where(ps ...predicate.Phone) *PhoneQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *PersonQuery) Limit(limit int) *PersonQuery {
+func (_q *PhoneQuery) Limit(limit int) *PhoneQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *PersonQuery) Offset(offset int) *PersonQuery {
+func (_q *PhoneQuery) Offset(offset int) *PhoneQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *PersonQuery) Unique(unique bool) *PersonQuery {
+func (_q *PhoneQuery) Unique(unique bool) *PhoneQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *PersonQuery) Order(o ...person.OrderOption) *PersonQuery {
+func (_q *PhoneQuery) Order(o ...phone.OrderOption) *PhoneQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryPhones chains the current query on the "phones" edge.
-func (_q *PersonQuery) QueryPhones() *PhoneQuery {
-	query := (&PhoneClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(person.Table, person.FieldID, selector),
-			sqlgraph.To(phone.Table, phone.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, person.PhonesTable, person.PhonesColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// First returns the first Person entity from the query.
-// Returns a *NotFoundError when no Person was found.
-func (_q *PersonQuery) First(ctx context.Context) (*Person, error) {
+// First returns the first Phone entity from the query.
+// Returns a *NotFoundError when no Phone was found.
+func (_q *PhoneQuery) First(ctx context.Context) (*Phone, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{person.Label}
+		return nil, &NotFoundError{phone.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *PersonQuery) FirstX(ctx context.Context) *Person {
+func (_q *PhoneQuery) FirstX(ctx context.Context) *Phone {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -105,22 +81,22 @@ func (_q *PersonQuery) FirstX(ctx context.Context) *Person {
 	return node
 }
 
-// FirstID returns the first Person ID from the query.
-// Returns a *NotFoundError when no Person ID was found.
-func (_q *PersonQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Phone ID from the query.
+// Returns a *NotFoundError when no Phone ID was found.
+func (_q *PhoneQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{person.Label}
+		err = &NotFoundError{phone.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *PersonQuery) FirstIDX(ctx context.Context) int {
+func (_q *PhoneQuery) FirstIDX(ctx context.Context) int {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -128,10 +104,10 @@ func (_q *PersonQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Person entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Person entity is found.
-// Returns a *NotFoundError when no Person entities are found.
-func (_q *PersonQuery) Only(ctx context.Context) (*Person, error) {
+// Only returns a single Phone entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Phone entity is found.
+// Returns a *NotFoundError when no Phone entities are found.
+func (_q *PhoneQuery) Only(ctx context.Context) (*Phone, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -140,14 +116,14 @@ func (_q *PersonQuery) Only(ctx context.Context) (*Person, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{person.Label}
+		return nil, &NotFoundError{phone.Label}
 	default:
-		return nil, &NotSingularError{person.Label}
+		return nil, &NotSingularError{phone.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *PersonQuery) OnlyX(ctx context.Context) *Person {
+func (_q *PhoneQuery) OnlyX(ctx context.Context) *Phone {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -155,10 +131,10 @@ func (_q *PersonQuery) OnlyX(ctx context.Context) *Person {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Person ID in the query.
-// Returns a *NotSingularError when more than one Person ID is found.
+// OnlyID is like Only, but returns the only Phone ID in the query.
+// Returns a *NotSingularError when more than one Phone ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *PersonQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *PhoneQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -167,15 +143,15 @@ func (_q *PersonQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{person.Label}
+		err = &NotFoundError{phone.Label}
 	default:
-		err = &NotSingularError{person.Label}
+		err = &NotSingularError{phone.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *PersonQuery) OnlyIDX(ctx context.Context) int {
+func (_q *PhoneQuery) OnlyIDX(ctx context.Context) int {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -183,18 +159,18 @@ func (_q *PersonQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Persons.
-func (_q *PersonQuery) All(ctx context.Context) ([]*Person, error) {
+// All executes the query and returns a list of Phones.
+func (_q *PhoneQuery) All(ctx context.Context) ([]*Phone, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Person, *PersonQuery]()
-	return withInterceptors[[]*Person](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Phone, *PhoneQuery]()
+	return withInterceptors[[]*Phone](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *PersonQuery) AllX(ctx context.Context) []*Person {
+func (_q *PhoneQuery) AllX(ctx context.Context) []*Phone {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -202,20 +178,20 @@ func (_q *PersonQuery) AllX(ctx context.Context) []*Person {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Person IDs.
-func (_q *PersonQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of Phone IDs.
+func (_q *PhoneQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(person.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(phone.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *PersonQuery) IDsX(ctx context.Context) []int {
+func (_q *PhoneQuery) IDsX(ctx context.Context) []int {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -224,16 +200,16 @@ func (_q *PersonQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (_q *PersonQuery) Count(ctx context.Context) (int, error) {
+func (_q *PhoneQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*PersonQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*PhoneQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *PersonQuery) CountX(ctx context.Context) int {
+func (_q *PhoneQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -242,7 +218,7 @@ func (_q *PersonQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *PersonQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *PhoneQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -255,7 +231,7 @@ func (_q *PersonQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *PersonQuery) ExistX(ctx context.Context) bool {
+func (_q *PhoneQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -263,34 +239,22 @@ func (_q *PersonQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the PersonQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the PhoneQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *PersonQuery) Clone() *PersonQuery {
+func (_q *PhoneQuery) Clone() *PhoneQuery {
 	if _q == nil {
 		return nil
 	}
-	return &PersonQuery{
+	return &PhoneQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]person.OrderOption{}, _q.order...),
+		order:      append([]phone.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Person{}, _q.predicates...),
-		withPhones: _q.withPhones.Clone(),
+		predicates: append([]predicate.Phone{}, _q.predicates...),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
-}
-
-// WithPhones tells the query-builder to eager-load the nodes that are connected to
-// the "phones" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *PersonQuery) WithPhones(opts ...func(*PhoneQuery)) *PersonQuery {
-	query := (&PhoneClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withPhones = query
-	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -299,19 +263,19 @@ func (_q *PersonQuery) WithPhones(opts ...func(*PhoneQuery)) *PersonQuery {
 // Example:
 //
 //	var v []struct {
-//		FirstName string `json:"first_name,omitempty"`
+//		Prefix string `json:"prefix,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Person.Query().
-//		GroupBy(person.FieldFirstName).
+//	client.Phone.Query().
+//		GroupBy(phone.FieldPrefix).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *PersonQuery) GroupBy(field string, fields ...string) *PersonGroupBy {
+func (_q *PhoneQuery) GroupBy(field string, fields ...string) *PhoneGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &PersonGroupBy{build: _q}
+	grbuild := &PhoneGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = person.Label
+	grbuild.label = phone.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -322,26 +286,26 @@ func (_q *PersonQuery) GroupBy(field string, fields ...string) *PersonGroupBy {
 // Example:
 //
 //	var v []struct {
-//		FirstName string `json:"first_name,omitempty"`
+//		Prefix string `json:"prefix,omitempty"`
 //	}
 //
-//	client.Person.Query().
-//		Select(person.FieldFirstName).
+//	client.Phone.Query().
+//		Select(phone.FieldPrefix).
 //		Scan(ctx, &v)
-func (_q *PersonQuery) Select(fields ...string) *PersonSelect {
+func (_q *PhoneQuery) Select(fields ...string) *PhoneSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &PersonSelect{PersonQuery: _q}
-	sbuild.label = person.Label
+	sbuild := &PhoneSelect{PhoneQuery: _q}
+	sbuild.label = phone.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a PersonSelect configured with the given aggregations.
-func (_q *PersonQuery) Aggregate(fns ...AggregateFunc) *PersonSelect {
+// Aggregate returns a PhoneSelect configured with the given aggregations.
+func (_q *PhoneQuery) Aggregate(fns ...AggregateFunc) *PhoneSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *PersonQuery) prepareQuery(ctx context.Context) error {
+func (_q *PhoneQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -353,7 +317,7 @@ func (_q *PersonQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !person.ValidColumn(f) {
+		if !phone.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -367,21 +331,21 @@ func (_q *PersonQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Person, error) {
+func (_q *PhoneQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Phone, error) {
 	var (
-		nodes       = []*Person{}
-		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
-			_q.withPhones != nil,
-		}
+		nodes   = []*Phone{}
+		withFKs = _q.withFKs
+		_spec   = _q.querySpec()
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, phone.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Person).scanValues(nil, columns)
+		return (*Phone).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Person{config: _q.config}
+		node := &Phone{config: _q.config}
 		nodes = append(nodes, node)
-		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -393,49 +357,10 @@ func (_q *PersonQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Perso
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withPhones; query != nil {
-		if err := _q.loadPhones(ctx, query, nodes,
-			func(n *Person) { n.Edges.Phones = []*Phone{} },
-			func(n *Person, e *Phone) { n.Edges.Phones = append(n.Edges.Phones, e) }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
-func (_q *PersonQuery) loadPhones(ctx context.Context, query *PhoneQuery, nodes []*Person, init func(*Person), assign func(*Person, *Phone)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Person)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Phone(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(person.PhonesColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.person_phones
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "person_phones" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "person_phones" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-
-func (_q *PersonQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *PhoneQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -444,8 +369,8 @@ func (_q *PersonQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *PersonQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(person.Table, person.Columns, sqlgraph.NewFieldSpec(person.FieldID, field.TypeInt))
+func (_q *PhoneQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(phone.Table, phone.Columns, sqlgraph.NewFieldSpec(phone.FieldID, field.TypeInt))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -454,9 +379,9 @@ func (_q *PersonQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, person.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, phone.FieldID)
 		for i := range fields {
-			if fields[i] != person.FieldID {
+			if fields[i] != phone.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -484,12 +409,12 @@ func (_q *PersonQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *PersonQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *PhoneQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(person.Table)
+	t1 := builder.Table(phone.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = person.Columns
+		columns = phone.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -516,28 +441,28 @@ func (_q *PersonQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// PersonGroupBy is the group-by builder for Person entities.
-type PersonGroupBy struct {
+// PhoneGroupBy is the group-by builder for Phone entities.
+type PhoneGroupBy struct {
 	selector
-	build *PersonQuery
+	build *PhoneQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *PersonGroupBy) Aggregate(fns ...AggregateFunc) *PersonGroupBy {
+func (_g *PhoneGroupBy) Aggregate(fns ...AggregateFunc) *PhoneGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *PersonGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *PhoneGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*PersonQuery, *PersonGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*PhoneQuery, *PhoneGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *PersonGroupBy) sqlScan(ctx context.Context, root *PersonQuery, v any) error {
+func (_g *PhoneGroupBy) sqlScan(ctx context.Context, root *PhoneQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -564,28 +489,28 @@ func (_g *PersonGroupBy) sqlScan(ctx context.Context, root *PersonQuery, v any) 
 	return sql.ScanSlice(rows, v)
 }
 
-// PersonSelect is the builder for selecting fields of Person entities.
-type PersonSelect struct {
-	*PersonQuery
+// PhoneSelect is the builder for selecting fields of Phone entities.
+type PhoneSelect struct {
+	*PhoneQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *PersonSelect) Aggregate(fns ...AggregateFunc) *PersonSelect {
+func (_s *PhoneSelect) Aggregate(fns ...AggregateFunc) *PhoneSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *PersonSelect) Scan(ctx context.Context, v any) error {
+func (_s *PhoneSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*PersonQuery, *PersonSelect](ctx, _s.PersonQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*PhoneQuery, *PhoneSelect](ctx, _s.PhoneQuery, _s, _s.inters, v)
 }
 
-func (_s *PersonSelect) sqlScan(ctx context.Context, root *PersonQuery, v any) error {
+func (_s *PhoneSelect) sqlScan(ctx context.Context, root *PhoneQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {
