@@ -1,3 +1,11 @@
+//
+// SmartGoRest - A REST API server in Go using the Ent framework.
+//
+// Copyright (c) Alessio Saltarin 2026
+// Licensed under ISC License - See LICENSE file for details.
+//
+//
+
 package schema
 
 import (

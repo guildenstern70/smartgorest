@@ -38,4 +38,4 @@
 - If changing fields/relations, always regenerate Ent code before finishing.
 - Keep README commands aligned with actual repo state (for example, no `internal/` package exists today).
 - When adding runtime behavior, preserve existing startup sequence: banner -> DB connect -> schema create.
-
+- When writing unit tests, do not write mocks for the database, instead use the in memory SQLite driver for testing (see `ent/dialect/sqlite`).

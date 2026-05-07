@@ -1,3 +1,10 @@
+//
+// SmartGoRest - A REST API server in Go using the Ent framework.
+//
+// Copyright (c) Alessio Saltarin 2026
+// Licensed under ISC License - See LICENSE file for details.
+//
+
 module github.com/guildenstern70/smartgorest
 
 go 1.26
@@ -5,6 +12,7 @@ go 1.26
 require (
 	entgo.io/ent v0.14.6
 	github.com/lib/pq v1.12.3
+	github.com/mattn/go-sqlite3 v1.14.28
 )
 
 require (
@@ -20,7 +28,6 @@ require (
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
-	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
