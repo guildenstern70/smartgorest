@@ -11,9 +11,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/guildenstern70/smartgorest/ent"
 	"github.com/guildenstern70/smartgorest/internal/db"
+	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 )
@@ -23,11 +25,15 @@ var (
 	dbHost  = "aws-0-eu-west-1.pooler.supabase.com"
 	dbPort  = "6543"
 	dbUser  = "postgres.nxpjqkbxqrxaauxzygag"
-	dbPass  = "Inq8bxXV5DP8sJtN"
 	dbName  = "postgres"
 )
 
 func main() {
+
+	// Load environment variables from .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("Warning: .env file not found, using system environment variables")
+	}
 
 	header()
 	var client = connectToDatabase()
@@ -55,6 +61,12 @@ func header() {
 func connectToDatabase() *ent.Client {
 
 	log.Println("Connecting to the database...")
+
+	// Get password from environment variable
+	dbPass := os.Getenv("DB_PASSWORD")
+	if dbPass == "" {
+		log.Fatal("DB_PASSWORD environment variable is not set")
+	}
 
 	connectionStringTemplate := "host=%s port=%s user=%s dbname=%s password=%s"
 	connectionString := fmt.Sprintf(connectionStringTemplate,

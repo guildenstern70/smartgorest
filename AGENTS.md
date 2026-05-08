@@ -33,9 +33,16 @@
 - ORM/Codegen: `entgo.io/ent` (schema in `ent/schema`, generated client in `ent/client.go`).
 - Connection details are currently hardcoded in `main.go`; `.env` exists but is not wired into runtime config.
 
+## Go configuration
+- Go version: 1.26 (see `go.mod`).
+- GOROOT: use go 1.26.2 in /opt/homebrew/opt/go/libexec (see `go env`).
+- GOPATH: use /Users/alessio/Documents/Codice/Go (see `go env`).
+
 ## Project-specific guidance for AI agents
 - Prefer changes in `main.go` + `ent/schema/*`; avoid manual edits in generated Ent files unless user explicitly asks.
 - If changing fields/relations, always regenerate Ent code before finishing.
 - Keep README commands aligned with actual repo state (for example, no `internal/` package exists today).
 - When adding runtime behavior, preserve existing startup sequence: banner -> DB connect -> schema create.
 - When writing unit tests, do not write mocks for the database, instead use the in memory SQLite driver for testing (see `ent/dialect/sqlite`).
+- Do not manage directly the Git repository; instead, provide commit messages and let the user handle commits and pushes.
+- 
