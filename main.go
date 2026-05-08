@@ -9,11 +9,21 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/guildenstern70/smartgorest/ent"
+	"github.com/guildenstern70/smartgorest/internal/controller/rest"
 	"github.com/guildenstern70/smartgorest/internal/db"
 	"github.com/guildenstern70/smartgorest/internal/service"
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 
 	_ "github.com/lib/pq"
 )
@@ -30,8 +40,9 @@ func main() {
 	}
 
 	header()
-	var dbService = service.NewDbService()
-	var client = dbService.GetClient()
+	dbService := service.NewDbService()
+	defer dbService.CloseConnection()
+	client := dbService.GetClient()
 
 	// Populate database with sample data
 	dbInitializer := db.NewInitializer(context.Background(), client)
@@ -39,8 +50,63 @@ func main() {
 		log.Fatalf("failed initializing database: %v", err)
 	}
 
-	dbService.CloseConnection()
+	// Start the Echo server
+	if err := startEcho(client); err != nil {
+		log.Fatalf("echo server terminated with error: %v", err)
+	}
 
+}
+
+func startEcho(dbClient *ent.Client) error {
+
+	log.Println("Starting Echo server on http://localhost:1323")
+
+	e := echo.New()
+	e.Use(middleware.RequestLogger())
+
+	// Services
+	personService := service.NewPersonService(dbClient)
+
+	// Controller
+	personController := rest.NewPersonController(personService)
+	persons := e.Group("/persons")
+	persons.GET("", personController.GetPersons)
+	persons.GET("/:id", personController.GetPerson)
+
+	server := &http.Server{
+		Addr:    ":1323",
+		Handler: e,
+	}
+
+	serverErr := make(chan error, 1)
+	go func() {
+		serverErr <- server.ListenAndServe()
+	}()
+
+	signalContext, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	select {
+	case err := <-serverErr:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	case <-signalContext.Done():
+		log.Println("Termination signal received, shutting down Echo server...")
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		if err := server.Shutdown(shutdownContext); err != nil {
+			return err
+		}
+
+		err := <-serverErr
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	}
 }
 
 func header() {
