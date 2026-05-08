@@ -26,6 +26,15 @@ func NewPersonService(dbClient *ent.Client) *PersonService {
 	}
 }
 
+// CountPersons returns the total number of persons in the database
+func (ps *PersonService) CountPersons() (int, error) {
+	if err := ps.validateInput(); err != nil {
+		return 0, err
+	}
+
+	return ps.dbClient.Person.Query().Count(context.Background())
+}
+
 func (ps *PersonService) GetAllPersons() ([]*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err

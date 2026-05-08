@@ -17,6 +17,7 @@ import (
 
 	"github.com/guildenstern70/smartgorest/ent"
 	"github.com/guildenstern70/smartgorest/ent/phone"
+	"github.com/guildenstern70/smartgorest/internal/service"
 )
 
 type Initializer struct {
@@ -47,6 +48,19 @@ func (dbinit *Initializer) Run() error {
 	}
 
 	log.Println("Initializing the database...")
+
+	// Check if database already has persons
+	personService := service.NewPersonService(dbinit.client)
+	count, err := personService.CountPersons()
+	if err != nil {
+		return fmt.Errorf("failed to count persons: %w", err)
+	}
+
+	if count > 0 {
+		log.Printf("Database already contains %d person(s). Skipping initialization.", count)
+		return nil
+	}
+
 	phones := dbinit.addPhones()
 	dbinit.addPersons(phones)
 	log.Println("Database initialized.")

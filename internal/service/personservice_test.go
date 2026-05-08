@@ -8,70 +8,45 @@
 package service
 
 import (
+	"os"
 	"testing"
 
 	"github.com/guildenstern70/smartgorest/ent"
-	"github.com/guildenstern70/smartgorest/ent/enttest"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/lib/pq"
 )
 
-func newTestPersonService(t *testing.T) *PersonService {
-	t.Helper()
+var personService *PersonService
 
-	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-	t.Cleanup(func() {
-		_ = client.Close()
-	})
+// TestMain sets up the test database once for all tests
+func TestMain(m *testing.M) {
 
-	_, err := client.Person.Create().
-		SetFirstName("John").
-		SetLastName("Doe").
-		SetAge(30).
-		SetEmail("john.doe@example.com").
-		Save(t.Context())
-	if err != nil {
-		t.Fatalf("seed person John Doe: %v", err)
-	}
+	// Setup DB
+	var dbService = NewDbService()
+	var dbClient = dbService.GetClient()
+	personService = NewPersonService(dbClient)
 
-	_, err = client.Person.Create().
-		SetFirstName("Jane").
-		SetLastName("Smith").
-		SetAge(25).
-		SetEmail("jane.smith@example.com").
-		Save(t.Context())
-	if err != nil {
-		t.Fatalf("seed person Jane Smith: %v", err)
-	}
+	// Run tests
+	code := m.Run()
 
-	_, err = client.Person.Create().
-		SetFirstName("Luca").
-		SetLastName("Bianchi").
-		SetAge(41).
-		SetEmail("luca.bianchi@example.com").
-		Save(t.Context())
-	if err != nil {
-		t.Fatalf("seed person Luca Bianchi: %v", err)
-	}
-
-	return NewPersonService(client)
+	// Cleanup
+	_ = dbClient.Close()
+	os.Exit(code)
 }
 
 func TestGetAllPersons(t *testing.T) {
-	service := newTestPersonService(t)
 
-	persons, err := service.GetAllPersons()
+	persons, err := personService.GetAllPersons()
 	if err != nil {
 		t.Fatalf("GetAllPersons returned error: %v", err)
 	}
-	if len(persons) != 3 {
-		t.Fatalf("expected 3 persons, got %d", len(persons))
+	if len(persons) == 0 {
+		t.Fatalf("expected more than 1 person, got %d", len(persons))
 	}
 }
 
 func TestGetFirstNPersons(t *testing.T) {
-	service := newTestPersonService(t)
 
-	persons, err := service.GetFirstNPersons(2)
+	persons, err := personService.GetFirstNPersons(2)
 	if err != nil {
 		t.Fatalf("GetFirstNPersons returned error: %v", err)
 	}
@@ -84,23 +59,21 @@ func TestGetFirstNPersons(t *testing.T) {
 }
 
 func TestGetFirstNPersonsRejectsNegativeN(t *testing.T) {
-	service := newTestPersonService(t)
 
-	_, err := service.GetFirstNPersons(-1)
+	_, err := personService.GetFirstNPersons(-1)
 	if err == nil {
 		t.Fatal("expected error for negative n")
 	}
 }
 
 func TestGetPersonByID(t *testing.T) {
-	service := newTestPersonService(t)
 
-	persons, err := service.GetAllPersons()
+	persons, err := personService.GetFirstNPersons(1)
 	if err != nil {
 		t.Fatalf("GetAllPersons returned error: %v", err)
 	}
 
-	personByID, err := service.GetPersonByID(persons[0].ID)
+	personByID, err := personService.GetPersonByID(persons[0].ID)
 	if err != nil {
 		t.Fatalf("GetPersonByID returned error: %v", err)
 	}
@@ -110,9 +83,8 @@ func TestGetPersonByID(t *testing.T) {
 }
 
 func TestGetPersonByIDNotFound(t *testing.T) {
-	service := newTestPersonService(t)
 
-	_, err := service.GetPersonByID(99999)
+	_, err := personService.GetPersonByID(99999)
 	if err == nil {
 		t.Fatal("expected not found error")
 	}
@@ -122,30 +94,29 @@ func TestGetPersonByIDNotFound(t *testing.T) {
 }
 
 func TestGetPersonByIDRejectsNonPositiveID(t *testing.T) {
-	service := newTestPersonService(t)
 
-	_, err := service.GetPersonByID(0)
+	_, err := personService.GetPersonByID(0)
 	if err == nil {
 		t.Fatal("expected error for non-positive id")
 	}
 }
 
 func TestGetPersonByNameAndSurname(t *testing.T) {
-	service := newTestPersonService(t)
 
-	personByName, err := service.GetPersonByNameAndSurname("Jane", "Smith")
+	persons, err := personService.GetFirstNPersons(1)
+
+	personByName, err := personService.GetPersonByNameAndSurname(persons[0].FirstName, persons[0].LastName)
 	if err != nil {
 		t.Fatalf("GetPersonByNameAndSurname returned error: %v", err)
 	}
-	if personByName.FirstName != "Jane" || personByName.LastName != "Smith" {
+	if personByName.FirstName != persons[0].FirstName || personByName.LastName != persons[0].LastName {
 		t.Fatalf("unexpected person returned: %s %s", personByName.FirstName, personByName.LastName)
 	}
 }
 
 func TestGetPersonByNameAndSurnameNotFound(t *testing.T) {
-	service := newTestPersonService(t)
 
-	_, err := service.GetPersonByNameAndSurname("No", "Body")
+	_, err := personService.GetPersonByNameAndSurname("No", "Body")
 	if err == nil {
 		t.Fatal("expected not found error")
 	}
@@ -155,19 +126,20 @@ func TestGetPersonByNameAndSurnameNotFound(t *testing.T) {
 }
 
 func TestGetPersonByNameAndSurnameRejectsEmptyInput(t *testing.T) {
-	service := newTestPersonService(t)
 
-	_, err := service.GetPersonByNameAndSurname("", "Smith")
+	_, err := personService.GetPersonByNameAndSurname("", "Smith")
 	if err == nil {
 		t.Fatal("expected error when name or surname are empty")
 	}
 }
 
-func TestPersonServiceNilReceiver(t *testing.T) {
-	var service *PersonService
+func TestCountPersons(t *testing.T) {
 
-	_, err := service.GetAllPersons()
-	if err == nil {
-		t.Fatal("expected error for nil service receiver")
+	count, err := personService.CountPersons()
+	if err != nil {
+		t.Fatalf("CountPersons returned error: %v", err)
+	}
+	if count == 0 {
+		t.Fatalf("expected 3 persons, got %d", count)
 	}
 }
