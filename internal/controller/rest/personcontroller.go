@@ -15,16 +15,19 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+// PersonController exposes person endpoints over HTTP.
 type PersonController struct {
 	personService *service.PersonService
 }
 
+// NewPersonController creates a controller backed by a person service.
 func NewPersonController(personService *service.PersonService) *PersonController {
 	return &PersonController{
 		personService: personService,
 	}
 }
 
+// GetPersons handles requests that fetch all persons.
 func (pc *PersonController) GetPersons(c *echo.Context) error {
 
 	persons, err := pc.personService.GetAllPersons()
@@ -34,6 +37,7 @@ func (pc *PersonController) GetPersons(c *echo.Context) error {
 	return c.JSON(http.StatusOK, persons)
 }
 
+// GetPerson handles requests that fetch one person by ID.
 func (pc *PersonController) GetPerson(c *echo.Context) error {
 
 	var err error

@@ -20,11 +20,13 @@ import (
 	"github.com/guildenstern70/smartgorest/internal/service"
 )
 
+// Initializer seeds the database with initial sample data.
 type Initializer struct {
 	ctx    context.Context
 	client *ent.Client
 }
 
+// NewInitializer creates a database initializer with a safe default context.
 func NewInitializer(ctx context.Context, client *ent.Client) *Initializer {
 	if ctx == nil {
 		ctx = context.Background()
@@ -36,6 +38,7 @@ func NewInitializer(ctx context.Context, client *ent.Client) *Initializer {
 	}
 }
 
+// Run populates the database with sample data when it is empty.
 func (dbinit *Initializer) Run() error {
 	if dbinit == nil {
 		return fmt.Errorf("db initializer is nil")
@@ -68,6 +71,7 @@ func (dbinit *Initializer) Run() error {
 	return nil
 }
 
+// addPhones creates a pool of sample phone records.
 func (dbinit *Initializer) addPhones() []*ent.Phone {
 	log.Println("Adding phones...")
 
@@ -93,6 +97,7 @@ func (dbinit *Initializer) addPhones() []*ent.Phone {
 	return phones
 }
 
+// addPersons creates sample people and assigns phones from the pool.
 func (dbinit *Initializer) addPersons(phones []*ent.Phone) {
 
 	log.Println("Adding persons...")
@@ -133,6 +138,7 @@ func (dbinit *Initializer) addPersons(phones []*ent.Phone) {
 
 }
 
+// createPhone persists a single phone entity.
 func (dbinit *Initializer) createPhone(prefix string, number string, kind phone.Kind) (*ent.Phone, error) {
 	p, err := dbinit.client.Phone.
 		Create().
@@ -147,6 +153,7 @@ func (dbinit *Initializer) createPhone(prefix string, number string, kind phone.
 	return p, nil
 }
 
+// createPerson persists a single person with optional phone relations.
 func (dbinit *Initializer) createPerson(
 	firstName string,
 	lastName string,

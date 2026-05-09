@@ -15,6 +15,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// personService is the shared test subject initialized once in TestMain.
 var personService *PersonService
 
 // TestMain sets up the test database once for all tests
@@ -33,6 +34,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// TestGetAllPersons verifies retrieving all persons.
 func TestGetAllPersons(t *testing.T) {
 
 	persons, err := personService.GetAllPersons()
@@ -44,6 +46,7 @@ func TestGetAllPersons(t *testing.T) {
 	}
 }
 
+// TestGetFirstNPersons verifies limiting and ordering behavior.
 func TestGetFirstNPersons(t *testing.T) {
 
 	persons, err := personService.GetFirstNPersons(2)
@@ -58,6 +61,7 @@ func TestGetFirstNPersons(t *testing.T) {
 	}
 }
 
+// TestGetFirstNPersonsRejectsNegativeN verifies invalid limits are rejected.
 func TestGetFirstNPersonsRejectsNegativeN(t *testing.T) {
 
 	_, err := personService.GetFirstNPersons(-1)
@@ -66,6 +70,7 @@ func TestGetFirstNPersonsRejectsNegativeN(t *testing.T) {
 	}
 }
 
+// TestGetPersonByID verifies fetching a person by ID.
 func TestGetPersonByID(t *testing.T) {
 
 	persons, err := personService.GetFirstNPersons(1)
@@ -82,6 +87,7 @@ func TestGetPersonByID(t *testing.T) {
 	}
 }
 
+// TestGetPersonByIDNotFound verifies not-found IDs return Ent not-found errors.
 func TestGetPersonByIDNotFound(t *testing.T) {
 
 	_, err := personService.GetPersonByID(99999)
@@ -93,6 +99,7 @@ func TestGetPersonByIDNotFound(t *testing.T) {
 	}
 }
 
+// TestGetPersonByIDRejectsNonPositiveID verifies invalid IDs are rejected.
 func TestGetPersonByIDRejectsNonPositiveID(t *testing.T) {
 
 	_, err := personService.GetPersonByID(0)
@@ -101,6 +108,7 @@ func TestGetPersonByIDRejectsNonPositiveID(t *testing.T) {
 	}
 }
 
+// TestGetPersonByNameAndSurname verifies lookups by first and last name.
 func TestGetPersonByNameAndSurname(t *testing.T) {
 
 	persons, err := personService.GetFirstNPersons(1)
@@ -114,6 +122,7 @@ func TestGetPersonByNameAndSurname(t *testing.T) {
 	}
 }
 
+// TestGetPersonByNameAndSurnameNotFound verifies missing names return not-found errors.
 func TestGetPersonByNameAndSurnameNotFound(t *testing.T) {
 
 	_, err := personService.GetPersonByNameAndSurname("No", "Body")
@@ -125,6 +134,7 @@ func TestGetPersonByNameAndSurnameNotFound(t *testing.T) {
 	}
 }
 
+// TestGetPersonByNameAndSurnameRejectsEmptyInput verifies empty inputs are rejected.
 func TestGetPersonByNameAndSurnameRejectsEmptyInput(t *testing.T) {
 
 	_, err := personService.GetPersonByNameAndSurname("", "Smith")
@@ -133,6 +143,7 @@ func TestGetPersonByNameAndSurnameRejectsEmptyInput(t *testing.T) {
 	}
 }
 
+// TestCountPersons verifies counting returns a non-zero total.
 func TestCountPersons(t *testing.T) {
 
 	count, err := personService.CountPersons()
