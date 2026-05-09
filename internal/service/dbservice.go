@@ -22,10 +22,13 @@ import (
 )
 
 const (
+	// connectTimeout limits how long initial database connectivity checks can take.
 	connectTimeout = 5 * time.Second
+	// schemaTimeout limits how long schema creation can take.
 	schemaTimeout  = 10 * time.Second
 )
 
+// DBService owns and manages the Ent database client lifecycle.
 type DBService struct {
 	dbClient *ent.Client
 }
@@ -37,6 +40,7 @@ func NewDbService() *DBService {
 	return dbs
 }
 
+// GetClient returns the active Ent client instance.
 func (dbs *DBService) GetClient() *ent.Client {
 	if dbs.dbClient == nil {
 		log.Fatal("DBService client is nil")
@@ -44,6 +48,7 @@ func (dbs *DBService) GetClient() *ent.Client {
 	return dbs.dbClient
 }
 
+// CloseConnection closes the Ent client when it is available.
 func (dbs *DBService) CloseConnection() {
 	if dbs.dbClient != nil {
 		if err := dbs.dbClient.Close(); err != nil {
@@ -54,6 +59,7 @@ func (dbs *DBService) CloseConnection() {
 	}
 }
 
+// setupClient opens the database connection and applies schema migrations.
 func (dbs *DBService) setupClient() *ent.Client {
 	connectionString := dbs.getConnectionString()
 	host := os.Getenv("DB_HOST")
@@ -91,6 +97,7 @@ func (dbs *DBService) setupClient() *ent.Client {
 	return client
 }
 
+// getConnectionString builds the Postgres DSN from environment variables.
 func (dbs *DBService) getConnectionString() string {
 
 	// Load environment variables

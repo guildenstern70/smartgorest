@@ -29,9 +29,11 @@ import (
 )
 
 var (
+	// version is the current application version displayed at startup.
 	version = "0.1"
 )
 
+// main bootstraps configuration, database setup, sample data, and HTTP server startup.
 func main() {
 
 	// Load environment variables from .env file
@@ -57,6 +59,7 @@ func main() {
 
 }
 
+// startEcho configures and runs the Echo server with graceful shutdown.
 func startEcho(dbClient *ent.Client) error {
 
 	log.Println("Starting Echo server on http://localhost:1323")
@@ -109,6 +112,7 @@ func startEcho(dbClient *ent.Client) error {
 	}
 }
 
+// header prints the startup banner.
 func header() {
 	log.Println("====================================")
 	log.Println("  Smart Go Rest - Version: ", version)

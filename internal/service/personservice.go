@@ -15,6 +15,7 @@ import (
 	"github.com/guildenstern70/smartgorest/ent/person"
 )
 
+// PersonService is a struct that provides person-oriented read operations.
 type PersonService struct {
 	dbClient *ent.Client
 }
@@ -35,6 +36,7 @@ func (ps *PersonService) CountPersons() (int, error) {
 	return ps.dbClient.Person.Query().Count(context.Background())
 }
 
+// GetAllPersons returns all persons in the database.
 func (ps *PersonService) GetAllPersons() ([]*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -43,6 +45,7 @@ func (ps *PersonService) GetAllPersons() ([]*ent.Person, error) {
 	return ps.dbClient.Person.Query().All(context.Background())
 }
 
+// GetFirstNPersons returns up to n persons ordered by ascending ID.
 func (ps *PersonService) GetFirstNPersons(n int) ([]*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -54,6 +57,7 @@ func (ps *PersonService) GetFirstNPersons(n int) ([]*ent.Person, error) {
 	return ps.dbClient.Person.Query().Order(person.ByID()).Limit(n).All(context.Background())
 }
 
+// GetPersonByID returns a person by its ID.
 func (ps *PersonService) GetPersonByID(id int) (*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -65,6 +69,7 @@ func (ps *PersonService) GetPersonByID(id int) (*ent.Person, error) {
 	return ps.dbClient.Person.Get(context.Background(), id)
 }
 
+// GetPersonByNameAndSurname returns one person matching first and last name.
 func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) (*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -78,6 +83,7 @@ func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) 
 		Only(context.Background())
 }
 
+// validateInput ensures the service and database client are initialized.
 func (ps *PersonService) validateInput() error {
 	if ps == nil {
 		return fmt.Errorf("person service is nil")
