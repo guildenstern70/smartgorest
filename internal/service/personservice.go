@@ -15,7 +15,7 @@ import (
 	"github.com/guildenstern70/smartgorest/ent/person"
 )
 
-// PersonService provides person-oriented read operations.
+// PersonService is a struct that provides person-oriented read operations.
 type PersonService struct {
 	dbClient *ent.Client
 }

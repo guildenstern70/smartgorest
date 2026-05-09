@@ -15,7 +15,7 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-// PersonController exposes person endpoints over HTTP.
+// PersonController is a struct that exposes person endpoints over HTTP.
 type PersonController struct {
 	personService *service.PersonService
 }

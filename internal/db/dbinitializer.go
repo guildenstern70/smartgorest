@@ -20,7 +20,7 @@ import (
 	"github.com/guildenstern70/smartgorest/internal/service"
 )
 
-// Initializer seeds the database with initial sample data.
+// Initializer is a struct that seeds the database with initial sample data.
 type Initializer struct {
 	ctx    context.Context
 	client *ent.Client
