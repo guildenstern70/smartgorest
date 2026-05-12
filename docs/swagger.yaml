@@ -1,0 +1,128 @@
+basePath: /api/v1
+definitions:
+  ent.Person:
+    properties:
+      age:
+        description: Age holds the value of the "age" field.
+        type: integer
+      edges:
+        allOf:
+        - $ref: '#/definitions/ent.PersonEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the PersonQuery when eager-loading is set.
+      email:
+        description: Email holds the value of the "email" field.
+        type: string
+      first_name:
+        description: FirstName holds the value of the "first_name" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: integer
+      last_name:
+        description: LastName holds the value of the "last_name" field.
+        type: string
+    type: object
+  ent.PersonEdges:
+    properties:
+      phones:
+        description: Phones holds the value of the phones edge.
+        items:
+          $ref: '#/definitions/ent.Phone'
+        type: array
+    type: object
+  ent.Phone:
+    properties:
+      id:
+        description: ID of the ent.
+        type: integer
+      kind:
+        allOf:
+        - $ref: '#/definitions/phone.Kind'
+        description: Kind holds the value of the "kind" field.
+      number:
+        description: Number holds the value of the "number" field.
+        type: string
+      prefix:
+        description: Prefix holds the value of the "prefix" field.
+        type: string
+    type: object
+  phone.Kind:
+    enum:
+    - cellular
+    - home
+    - work
+    type: string
+    x-enum-varnames:
+    - KindCellular
+    - KindHome
+    - KindWork
+info:
+  contact:
+    email: alessiosaltarin@gmail.com
+    name: Alessio Saltarin
+  description: A REST API server in Go using the Ent framework.
+  license:
+    name: ISC License
+    url: https://opensource.org/license/isc
+  title: Smart Go Rest API
+  version: "1.0"
+paths:
+  /persons:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all persons in the system.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/ent.Person'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all persons
+      tags:
+      - persons
+  /persons/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get details of a specific person by their ID.
+      parameters:
+      - description: Person ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ent.Person'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a person by ID
+      tags:
+      - persons
+swagger: "2.0"

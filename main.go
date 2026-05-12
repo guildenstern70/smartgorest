@@ -19,6 +19,7 @@ import (
 	"syscall"
 	"time"
 
+	_ "github.com/guildenstern70/smartgorest/docs"
 	"github.com/guildenstern70/smartgorest/ent"
 	"github.com/guildenstern70/smartgorest/internal/controller/rest"
 	"github.com/guildenstern70/smartgorest/internal/controller/web"
@@ -27,9 +28,21 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
-
 	_ "github.com/lib/pq"
+	echoSwagger "github.com/swaggo/echo-swagger/v2"
 )
+
+// @title Smart Go Rest API
+// @version 1.0
+// @description A REST API server in Go using the Ent framework.
+
+// @contact.name Alessio Saltarin
+// @contact.email alessiosaltarin@gmail.com
+
+// @BasePath  /api/v1
+
+// @license.name ISC License
+// @license.url https://opensource.org/license/isc
 
 var (
 	// version is the current application version displayed at startup.
@@ -88,6 +101,9 @@ func startEcho(dbClient *ent.Client) error {
 	}
 	e.Renderer = t
 	e.GET("/", web.HomePage)
+
+	// Open API v3.0
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// REST Controller
 	personController := rest.NewPersonController(personService)

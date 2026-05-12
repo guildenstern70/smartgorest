@@ -27,7 +27,15 @@ func NewPersonController(personService *service.PersonService) *PersonController
 	}
 }
 
-// GetPersons handles requests that fetch all persons.
+// GetPersons godoc
+// @Summary      Get all persons
+// @Description  Get a list of all persons in the system.
+// @Tags         persons
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   ent.Person
+// @Failure      500  {object}  map[string]string
+// @Router       /persons [get]
 func (pc *PersonController) GetPersons(c *echo.Context) error {
 
 	persons, err := pc.personService.GetAllPersons()
@@ -37,7 +45,17 @@ func (pc *PersonController) GetPersons(c *echo.Context) error {
 	return c.JSON(http.StatusOK, persons)
 }
 
-// GetPerson handles requests that fetch one person by ID.
+// GetPerson godoc
+// @Summary      Get a person by ID
+// @Description  Get details of a specific person by their ID.
+// @Tags         persons
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Person ID"
+// @Success      200  {object}  ent.Person
+// @Failure      400  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /persons/{id} [get]
 func (pc *PersonController) GetPerson(c *echo.Context) error {
 
 	var err error
