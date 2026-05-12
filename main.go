@@ -10,6 +10,8 @@ package main
 import (
 	"context"
 	"errors"
+	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +21,7 @@ import (
 
 	"github.com/guildenstern70/smartgorest/ent"
 	"github.com/guildenstern70/smartgorest/internal/controller/rest"
+	"github.com/guildenstern70/smartgorest/internal/controller/web"
 	"github.com/guildenstern70/smartgorest/internal/db"
 	"github.com/guildenstern70/smartgorest/internal/service"
 	"github.com/joho/godotenv"
@@ -32,6 +35,15 @@ var (
 	// version is the current application version displayed at startup.
 	version = "0.1"
 )
+
+// Template HTML Renderer for Web Controller
+type Template struct {
+	templates *template.Template
+}
+
+func (t *Template) Render(_ *echo.Context, w io.Writer, name string, data any) error {
+	return t.templates.ExecuteTemplate(w, name, data)
+}
 
 // main bootstraps configuration, database setup, sample data, and HTTP server startup.
 func main() {
@@ -70,7 +82,14 @@ func startEcho(dbClient *ent.Client) error {
 	// Services
 	personService := service.NewPersonService(dbClient)
 
-	// Controller
+	// Web Controller
+	t := &Template{
+		templates: template.Must(template.ParseGlob("public/views/*.html")),
+	}
+	e.Renderer = t
+	e.GET("/", web.HomePage)
+
+	// REST Controller
 	personController := rest.NewPersonController(personService)
 	persons := e.Group("/persons")
 	persons.GET("", personController.GetPersons)
