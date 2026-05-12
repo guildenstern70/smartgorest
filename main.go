@@ -107,7 +107,7 @@ func startEcho(dbClient *ent.Client) error {
 
 	// REST Controller
 	personController := rest.NewPersonController(personService)
-	persons := e.Group("/persons")
+	persons := e.Group("/api/v1/persons")
 	persons.GET("", personController.GetPersons)
 	persons.GET("/:id", personController.GetPerson)
 
