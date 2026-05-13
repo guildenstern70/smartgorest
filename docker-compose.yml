@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartgorest-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-smartgorest}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smartgorest}
+      POSTGRES_DB: ${DB_NAME:-smartgorest}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-smartgorest}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - smartgorest-network
+
+  app:
+    build: .
+    container_name: smartgorest-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://smartgorest:smartgorest@postgres:5432/smartgorest?sslmode=disable}
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER:-smartgorest}
+      DB_PASSWORD: ${DB_PASSWORD:-smartgorest}
+      DB_NAME: ${DB_NAME:-smartgorest}
+    ports:
+      - "1323:1323"
+    networks:
+      - smartgorest-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  smartgorest-network:
+    driver: bridge
+
