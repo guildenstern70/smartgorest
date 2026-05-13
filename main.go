@@ -112,6 +112,8 @@ func startEcho(dbClient *ent.Client) error {
 	persons := e.Group("/api/v1/persons")
 	persons.GET("", personController.GetPersons)
 	persons.GET("/:id", personController.GetPerson)
+	persons.POST("", personController.CreatePerson)
+	persons.DELETE("/:id", personController.DeletePerson)
 
 	server := &http.Server{
 		Addr:    ":1323",

@@ -71,3 +71,9 @@ Regenerate the code
 Notice that the changes are applied to the database when you run the app, because
 it has a mechanism to auto-create the schema on startup.
 
+## Swag
+
+Refresh the API documentation
+
+    swag init -g main.go
+

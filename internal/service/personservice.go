@@ -84,6 +84,39 @@ func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) 
 		Only(context.Background())
 }
 
+// CreatePerson creates a new person with the provided details.
+func (ps *PersonService) CreatePerson(firstName, lastName, email string, age int) (*ent.Person, error) {
+	if err := ps.validateInput(); err != nil {
+		return nil, err
+	}
+	if firstName == "" || lastName == "" {
+		return nil, fmt.Errorf("first name and last name are required")
+	}
+	if age < 0 {
+		return nil, fmt.Errorf("age cannot be negative")
+	}
+
+	return ps.dbClient.Person.Create().
+		SetFirstName(firstName).
+		SetLastName(lastName).
+		SetEmail(email).
+		SetAge(age).
+		Save(context.Background())
+}
+
+// DeletePerson deletes a person by their ID.
+func (ps *PersonService) DeletePerson(id int) error {
+	if err := ps.validateInput(); err != nil {
+		return err
+	}
+	if id <= 0 {
+		return fmt.Errorf("id must be positive")
+	}
+
+	_, err := ps.dbClient.Person.Delete().Where(person.IDEQ(id)).Exec(context.Background())
+	return err
+}
+
 // validateInput ensures the service and database client are initialized.
 func (ps *PersonService) validateInput() error {
 	if ps == nil {

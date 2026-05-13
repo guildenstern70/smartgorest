@@ -58,6 +58,21 @@ definitions:
     - KindCellular
     - KindHome
     - KindWork
+  rest.CreatePersonRequest:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+    required:
+    - age
+    - first_name
+    - last_name
+    type: object
 info:
   contact:
     email: alessiosaltarin@gmail.com
@@ -92,7 +107,76 @@ paths:
       summary: Get all persons
       tags:
       - persons
+    post:
+      consumes:
+      - application/json
+      description: Create a new person with the provided details.
+      parameters:
+      - description: Person data
+        in: body
+        name: person
+        required: true
+        schema:
+          $ref: '#/definitions/rest.CreatePersonRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ent.Person'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new person
+      tags:
+      - persons
   /persons/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a person by their ID.
+      parameters:
+      - description: Person ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a person
+      tags:
+      - persons
     get:
       consumes:
       - application/json
