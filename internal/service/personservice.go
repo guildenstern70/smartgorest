@@ -36,16 +36,16 @@ func (ps *PersonService) CountPersons() (int, error) {
 	return ps.dbClient.Person.Query().Count(context.Background())
 }
 
-// GetAllPersons returns all persons in the database.
+// GetAllPersons returns all persons in the database, including their phones.
 func (ps *PersonService) GetAllPersons() ([]*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
 	}
 
-	return ps.dbClient.Person.Query().All(context.Background())
+	return ps.dbClient.Person.Query().WithPhones().All(context.Background())
 }
 
-// GetFirstNPersons returns up to n persons ordered by ascending ID.
+// GetFirstNPersons returns up to n persons ordered by ascending ID, including their phones.
 func (ps *PersonService) GetFirstNPersons(n int) ([]*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -54,10 +54,10 @@ func (ps *PersonService) GetFirstNPersons(n int) ([]*ent.Person, error) {
 		return nil, fmt.Errorf("n cannot be negative")
 	}
 
-	return ps.dbClient.Person.Query().Order(person.ByID()).Limit(n).All(context.Background())
+	return ps.dbClient.Person.Query().WithPhones().Order(person.ByID()).Limit(n).All(context.Background())
 }
 
-// GetPersonByID returns a person by its ID.
+// GetPersonByID returns a person by its ID, including their phones.
 func (ps *PersonService) GetPersonByID(id int) (*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -66,10 +66,10 @@ func (ps *PersonService) GetPersonByID(id int) (*ent.Person, error) {
 		return nil, fmt.Errorf("id must be positive")
 	}
 
-	return ps.dbClient.Person.Get(context.Background(), id)
+	return ps.dbClient.Person.Query().WithPhones().Where(person.IDEQ(id)).Only(context.Background())
 }
 
-// GetPersonByNameAndSurname returns one person matching first and last name.
+// GetPersonByNameAndSurname returns one person matching first and last name, including their phones.
 func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) (*ent.Person, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
@@ -79,6 +79,7 @@ func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) 
 	}
 
 	return ps.dbClient.Person.Query().
+		WithPhones().
 		Where(person.FirstNameEQ(name), person.LastNameEQ(surname)).
 		Only(context.Background())
 }
