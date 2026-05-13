@@ -3,16 +3,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Go REST</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --primary: #1455cc;
+            --accent: #0f172a;
+            --muted: #5b6472;
+            --border: #d8dfeb;
+        }
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle at top right, #e8f0ff 0, var(--bg) 40%);
+            color: var(--accent);
+        }
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+        .hero {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 12px 30px rgba(20, 85, 204, 0.08);
+        }
+        h1 {
+            margin-top: 0;
+            font-size: clamp(2rem, 3vw, 2.6rem);
+            letter-spacing: -0.02em;
+        }
+        p {
+            line-height: 1.65;
+            color: var(--muted);
+            max-width: 65ch;
+        }
+        .cta {
+            display: inline-block;
+            margin-top: 1rem;
+            text-decoration: none;
+            background: var(--primary);
+            color: #ffffff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .features {
+            margin-top: 1.5rem;
+            display: grid;
+            gap: 0.8rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+        .feature {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fbfcff;
+            padding: 0.9rem;
+        }
+        .feature strong {
+            display: block;
+            margin-bottom: 0.2rem;
+            color: var(--accent);
+        }
+    </style>
 </head>
 <body>
-
-    <p>Welcome to Smart Go REST</p>
-
-    <p>
-        <a href="/swagger/index.html">Swagger UI</a>
-    </p>
-
+    <main class="container">
+        <section class="hero">
+            <h1>Smart Go REST</h1>
+            <p>
+                A modern REST backend built with Go, Echo, and Ent. Explore available endpoints,
+                inspect schemas, and access OpenAPI resources from a dedicated API portal.
+            </p>
+            <a class="cta" href="{{.APIPortalURL}}">Open API Portal</a>
+            <div class="features">
+                <div class="feature">
+                    <strong>Clean architecture</strong>
+                    Service and controller layers organized for maintainability.
+                </div>
+                <div class="feature">
+                    <strong>Ent-powered model</strong>
+                    Schema-first domain design with generated query and mutation APIs.
+                </div>
+                <div class="feature">
+                    <strong>API docs ready</strong>
+                    Built-in Swagger UI and downloadable OpenAPI JSON specification.
+                </div>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
 {{end}}

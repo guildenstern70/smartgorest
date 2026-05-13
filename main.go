@@ -101,6 +101,8 @@ func startEcho(dbClient *ent.Client) error {
 	}
 	e.Renderer = t
 	e.GET("/", web.HomePage)
+	e.GET("/api", web.APIPortalPage)
+	e.GET("/openapi.json", web.DownloadOpenAPIJSON)
 
 	// Open API v3.0
 	e.GET("/swagger/*", echoSwagger.WrapHandler)

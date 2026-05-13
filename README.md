@@ -3,6 +3,8 @@
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 [![Go Report](https://goreportcard.com/badge/github.com/guildenstern70/golearn)](https://goreportcard.com/report/github.com/guildenstern70/golearn)
 
+<img src="/public/screenshot.png" width="800"  alt="Smart Go REST screenshot"/>
+
 ## Setup
 
 You should have a single workspace repository for all of your GO
