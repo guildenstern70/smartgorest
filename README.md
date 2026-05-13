@@ -1,7 +1,7 @@
 # Smart Go REST
 
-[![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
-[![Go Report](https://goreportcard.com/badge/github.com/guildenstern70/golearn)](https://goreportcard.com/report/github.com/guildenstern70/golearn)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+[![Go Report Card](https://goreportcard.com/badge/github.com/guildenstern70/smartgorest)](https://goreportcard.com/report/github.com/guildenstern70/smartgorest)
 
 <img src="/public/screenshot.png" width="800"  alt="Smart Go REST screenshot"/>
 
