@@ -111,7 +111,7 @@ func TestGetPersonByIDRejectsNonPositiveID(t *testing.T) {
 // TestGetPersonByNameAndSurname verifies lookups by first and last name.
 func TestGetPersonByNameAndSurname(t *testing.T) {
 
-	persons, err := personService.GetFirstNPersons(1)
+	persons, _ := personService.GetFirstNPersons(1)
 
 	personByName, err := personService.GetPersonByNameAndSurname(persons[0].FirstName, persons[0].LastName)
 	if err != nil {
