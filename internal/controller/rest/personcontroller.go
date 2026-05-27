@@ -42,7 +42,7 @@ func NewPersonController(personService *service.PersonService) *PersonController
 // @Tags         persons
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   ent.Person
+// @Success      200  {array}   dto.PersonDTO
 // @Failure      500  {object}  map[string]string
 // @Router       /persons [get]
 func (pc *PersonController) GetPersons(c *echo.Context) error {
@@ -61,7 +61,7 @@ func (pc *PersonController) GetPersons(c *echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        id   path      int  true  "Person ID"
-// @Success      200  {object}  ent.Person
+// @Success      200  {object}  dto.PersonDTO
 // @Failure      400  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /persons/{id} [get]
@@ -88,7 +88,7 @@ func (pc *PersonController) GetPerson(c *echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        person  body      CreatePersonRequest  true  "Person data"
-// @Success      201     {object}  ent.Person
+// @Success      201     {object}  dto.PersonDTO
 // @Failure      400     {object}  map[string]string
 // @Failure      500     {object}  map[string]string
 // @Router       /persons [post]

@@ -13,6 +13,7 @@ import (
 
 	"github.com/guildenstern70/smartgorest/ent"
 	"github.com/guildenstern70/smartgorest/ent/person"
+	"github.com/guildenstern70/smartgorest/internal/dto"
 )
 
 // PersonService is a struct that provides person-oriented read operations.
@@ -36,17 +37,21 @@ func (ps *PersonService) CountPersons() (int, error) {
 	return ps.dbClient.Person.Query().Count(context.Background())
 }
 
-// GetAllPersons returns all persons in the database, including their phones.
-func (ps *PersonService) GetAllPersons() ([]*ent.Person, error) {
+// GetAllPersons returns all persons in the database, including their phones, as DTOs.
+func (ps *PersonService) GetAllPersons() ([]*dto.PersonDTO, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
 	}
 
-	return ps.dbClient.Person.Query().WithPhones().All(context.Background())
+	persons, err := ps.dbClient.Person.Query().WithPhones().All(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return dto.PersonDTOsFromEnt(persons), nil
 }
 
-// GetFirstNPersons returns up to n persons ordered by ascending ID, including their phones.
-func (ps *PersonService) GetFirstNPersons(n int) ([]*ent.Person, error) {
+// GetFirstNPersons returns up to n persons ordered by ascending ID, including their phones, as DTOs.
+func (ps *PersonService) GetFirstNPersons(n int) ([]*dto.PersonDTO, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
 	}
@@ -54,11 +59,15 @@ func (ps *PersonService) GetFirstNPersons(n int) ([]*ent.Person, error) {
 		return nil, fmt.Errorf("n cannot be negative")
 	}
 
-	return ps.dbClient.Person.Query().WithPhones().Order(person.ByID()).Limit(n).All(context.Background())
+	persons, err := ps.dbClient.Person.Query().WithPhones().Order(person.ByID()).Limit(n).All(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return dto.PersonDTOsFromEnt(persons), nil
 }
 
-// GetPersonByID returns a person by its ID, including their phones.
-func (ps *PersonService) GetPersonByID(id int) (*ent.Person, error) {
+// GetPersonByID returns a person by its ID, including their phones, as a DTO.
+func (ps *PersonService) GetPersonByID(id int) (*dto.PersonDTO, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
 	}
@@ -66,11 +75,15 @@ func (ps *PersonService) GetPersonByID(id int) (*ent.Person, error) {
 		return nil, fmt.Errorf("id must be positive")
 	}
 
-	return ps.dbClient.Person.Query().WithPhones().Where(person.IDEQ(id)).Only(context.Background())
+	p, err := ps.dbClient.Person.Query().WithPhones().Where(person.IDEQ(id)).Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return dto.PersonDTOFromEnt(p), nil
 }
 
-// GetPersonByNameAndSurname returns one person matching first and last name, including their phones.
-func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) (*ent.Person, error) {
+// GetPersonByNameAndSurname returns one person matching first and last name, including their phones, as a DTO.
+func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) (*dto.PersonDTO, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
 	}
@@ -78,14 +91,18 @@ func (ps *PersonService) GetPersonByNameAndSurname(name string, surname string) 
 		return nil, fmt.Errorf("name and surname are required")
 	}
 
-	return ps.dbClient.Person.Query().
+	p, err := ps.dbClient.Person.Query().
 		WithPhones().
 		Where(person.FirstNameEQ(name), person.LastNameEQ(surname)).
 		Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return dto.PersonDTOFromEnt(p), nil
 }
 
-// CreatePerson creates a new person with the provided details.
-func (ps *PersonService) CreatePerson(firstName, lastName, email string, age int) (*ent.Person, error) {
+// CreatePerson creates a new person with the provided details and returns it as a DTO.
+func (ps *PersonService) CreatePerson(firstName, lastName, email string, age int) (*dto.PersonDTO, error) {
 	if err := ps.validateInput(); err != nil {
 		return nil, err
 	}
@@ -96,12 +113,16 @@ func (ps *PersonService) CreatePerson(firstName, lastName, email string, age int
 		return nil, fmt.Errorf("age cannot be negative")
 	}
 
-	return ps.dbClient.Person.Create().
+	p, err := ps.dbClient.Person.Create().
 		SetFirstName(firstName).
 		SetLastName(lastName).
 		SetEmail(email).
 		SetAge(age).
 		Save(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return dto.PersonDTOFromEnt(p), nil
 }
 
 // DeletePerson deletes a person by their ID.
